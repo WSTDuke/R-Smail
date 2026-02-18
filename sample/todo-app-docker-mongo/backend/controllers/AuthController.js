@@ -42,13 +42,31 @@ class AuthController {
 
   /**
    * @route   GET /api/auth/me
-   * @desc    Get current user
+   * @desc    Lấy thông tin user hiện tại
    * @access  Private
    */
   async getCurrentUser(req, res, next) {
     try {
-      const result = await AuthService.getCurrentUser(req.user.id);
-      res.json(result);
+      const user = await AuthService.getCurrentUser(req.user.id);
+      res.json(user);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * @route   GET /api/auth/users
+   * @desc    Lấy tất cả user
+   * @access  Private
+   */
+  async getAllUsers(req, res, next) {
+    try {
+      const users = await UserRepository.findAll();
+      res.json({
+        success: true,
+        count: users.length,
+        data: users
+      });
     } catch (error) {
       next(error);
     }

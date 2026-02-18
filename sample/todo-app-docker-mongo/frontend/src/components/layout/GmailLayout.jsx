@@ -6,7 +6,7 @@ const GmailLayout = ({ children, user, onLogout, onCompose, activeFolder, setAct
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
-    <div className="flex flex-col h-screen bg-[#f6f8fc] overflow-hidden">
+    <div className="flex flex-col h-screen bg-[var(--bg-main)] overflow-hidden font-body text-[var(--text-main)]">
       <Header 
         user={user} 
         onLogout={onLogout} 
@@ -22,8 +22,8 @@ const GmailLayout = ({ children, user, onLogout, onCompose, activeFolder, setAct
           isCollapsed={isSidebarCollapsed}
         />
         
-        {/* Main Content Area - Premium Rounded Card */}
-        <main className={`flex-1 flex flex-col transition-all duration-300 ease-in-out relative bg-white mt-1 mb-4 mr-4 rounded-[24px] shadow-sm border border-gray-100 overflow-hidden`}>
+        {/* Main Content Area - Aged Paper Card */}
+        <main className={`flex-1 flex flex-col transition-all duration-300 ease-in-out relative bg-[var(--bg-content)] mt-1 mb-6 mr-6 rounded-[var(--radius-xl)] shadow-md border border-[var(--border-subtle)] overflow-hidden`}>
           {children}
         </main>
       </div>

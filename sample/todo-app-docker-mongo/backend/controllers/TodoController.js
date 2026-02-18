@@ -21,7 +21,8 @@ class TodoController {
   async getAllTodos(req, res, next) {
     try {
       const userId = req.user.id;
-      const result = await TodoService.getUserTodos(userId);
+      const folder = req.query.folder || 'inbox';
+      const result = await TodoService.getUserTodos(userId, folder);
 
       res.json(result);
     } catch (error) {
@@ -59,7 +60,7 @@ class TodoController {
     try {
       const todoData = req.body;
       const userId = req.user.id;
-
+      console.log('CONTROLLER [createTodo] body:', todoData);
       const result = await TodoService.createTodo(todoData, userId);
 
       res.status(201).json(result);
@@ -115,6 +116,69 @@ class TodoController {
   }
 
   /**
+   * @route   PATCH /api/todos/:id/toggle-star
+   * @desc    Toggle starred
+   * @access  Private
+   */
+  async toggleStar(req, res, next) {
+    try {
+      const todoId = req.params.id;
+      const userId = req.user.id;
+
+      const result = await TodoService.toggleStar(todoId, userId);
+
+      res.json(result);
+    } catch (error) {
+      if (error.statusCode) {
+        res.status(error.statusCode);
+      }
+      next(error);
+    }
+  }
+
+  /**
+   * @route   PATCH /api/todos/:id/snooze
+   * @desc    Snooze todo (move to snoozed folder)
+   * @access  Private
+   */
+  async snoozeTodo(req, res, next) {
+    try {
+      const todoId = req.params.id;
+      const userId = req.user.id;
+
+      const result = await TodoService.snoozeTodo(todoId, userId);
+
+      res.json(result);
+    } catch (error) {
+      if (error.statusCode) {
+        res.status(error.statusCode);
+      }
+      next(error);
+    }
+  }
+
+  /**
+   * @route   PATCH /api/todos/:id/unsnooze
+   * @desc    Unsnooze todo (move back to inbox)
+   * @access  Private
+   */
+  async unsnoozeTodo(req, res, next) {
+    try {
+      const todoId = req.params.id;
+      const userId = req.user.id;
+
+      const result = await TodoService.unsnoozeTodo(todoId, userId);
+
+      res.json(result);
+    } catch (error) {
+      if (error.statusCode) {
+        res.status(error.statusCode);
+      }
+      next(error);
+    }
+  }
+
+  /**
    * @route   DELETE /api/todos/:id
    * @desc    Xóa todo
    * @access  Private
@@ -131,6 +195,28 @@ class TodoController {
       if (error.statusCode) {
         res.status(error.statusCode);
       }
+      next(error);
+    }
+  }
+
+  /**
+   * @route   DELETE /api/todos/bulk
+   * @desc    Xóa nhiều todos
+   * @access  Private
+   */
+  async deleteBulkTodos(req, res, next) {
+    try {
+      const { ids } = req.body;
+      const userId = req.user.id;
+
+      if (!ids || !Array.isArray(ids)) {
+        return res.status(400).json({ success: false, message: 'Danh sách ID không hợp lệ' });
+      }
+
+      const result = await TodoService.deleteBulkTodos(ids, userId);
+
+      res.json(result);
+    } catch (error) {
       next(error);
     }
   }

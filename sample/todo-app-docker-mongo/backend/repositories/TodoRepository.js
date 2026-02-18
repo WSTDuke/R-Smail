@@ -13,12 +13,23 @@ const Todo = require('../models/Todo');
 
 class TodoRepository {
   /**
-   * Lấy tất cả todos của 1 user
+   * Lấy tất cả todos của 1 user theo thư mục
    * @param {String} userId - ID của user
+   * @param {String} folder - Thư mục (inbox, sent, v.v.)
    * @returns {Promise<Array>} Array of todos
    */
-  async findByUserId(userId) {
-    return await Todo.find({ user: userId }).sort({ createdAt: -1 });
+  async findByUserIdAndFolder(userId, folder) {
+    const filter = { user: userId };
+    if (folder === 'starred') {
+      filter.starred = true;
+    } else {
+      filter.folder = folder;
+    }
+    
+    return await Todo.find(filter)
+      .populate('sender', 'name email')
+      .populate('recipient', 'name email')
+      .sort({ createdAt: -1 });
   }
 
   /**
@@ -27,7 +38,9 @@ class TodoRepository {
    * @returns {Promise<Object|null>} Todo object hoặc null
    */
   async findById(todoId) {
-    return await Todo.findById(todoId);
+    return await Todo.findById(todoId)
+      .populate('sender', 'name email')
+      .populate('recipient', 'name email');
   }
 
   /**
@@ -50,7 +63,9 @@ class TodoRepository {
       todoId,
       updateData,
       { new: true, runValidators: true }
-    );
+    )
+    .populate('sender', 'name email')
+    .populate('recipient', 'name email');
   }
 
   /**
@@ -91,7 +106,11 @@ class TodoRepository {
 
     todo.completed = !todo.completed;
     await todo.save();
-    return todo;
+    
+    // Repopulate after save
+    return await Todo.findById(todo._id)
+      .populate('sender', 'name email')
+      .populate('recipient', 'name email');
   }
 }
 

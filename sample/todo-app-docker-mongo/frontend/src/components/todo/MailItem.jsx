@@ -1,7 +1,7 @@
 import React from 'react';
-import { Trash2, RotateCcw, CheckCircle2, Star, Archive, MailOpen, Clock } from 'lucide-react';
+import { Trash2, RotateCcw, Star, Clock } from 'lucide-react';
 
-const MailItem = ({ todo, onToggle, onDelete }) => {
+const MailItem = ({ todo, isSelected, onToggle, onStarToggle, onDelete, onSnooze, onUnsnooze, activeFolder, onSelect, onViewTodo }) => {
   const date = new Date(todo.createdAt || Date.now());
   const formattedDate = date.toLocaleDateString('vi-VN', {
     day: 'numeric',
@@ -10,69 +10,82 @@ const MailItem = ({ todo, onToggle, onDelete }) => {
 
   return (
     <tr
-      className={`group border-b border-transparent hover:border-gray-200 cursor-pointer transition-all duration-75 mail-item-row relative ${
-        todo.completed ? 'bg-[#f2f6fc] opacity-80' : 'bg-white'
-      }`}
+      onClick={() => onViewTodo(todo)}
+      className={`group border-b border-[var(--border-subtle)]/50 hover:bg-white hover:shadow-lg cursor-pointer transition-all duration-300 mail-item-row relative z-10 font-hand ${
+        isSelected ? 'bg-[var(--accent-blue)]/5' : 'bg-transparent'
+      } ${todo.completed ? 'opacity-50' : ''}`}
     >
-      <td className="w-[52px] py-1 px-4 whitespace-nowrap relative z-10">
+      <td className="w-[90px] py-2 pl-6 pr-1 whitespace-nowrap relative border-y border-[var(--border-subtle)]/30">
         <div className="flex items-center gap-3">
-          <div className="p-1 hover:bg-gray-100 rounded-md transition-colors">
+          <div 
+            className="p-1 hover:bg-black/5 rounded-full transition-all cursor-pointer group flex items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
             <input
               type="checkbox"
-              checked={todo.completed}
+              checked={isSelected}
               onChange={(e) => {
                 e.stopPropagation();
-                onToggle(todo._id);
+                onSelect(todo._id);
               }}
-              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-0 cursor-pointer"
+              className="w-5 h-5 rounded-full border-[var(--border-medium)] text-[var(--accent-blue)] focus:ring-0 cursor-pointer shadow-sm transition-all bg-transparent"
             />
           </div>
-          <button className="text-gray-300 hover:text-yellow-400 p-1 rounded-md transition-colors">
-            <Star className={`w-[20px] h-[20px] ${todo.starred ? 'text-yellow-400 fill-yellow-400' : ''}`} />
+          <button 
+            className={`p-1 rounded-full transition-all hover:bg-black/5 active:scale-90 ${todo.starred ? 'text-yellow-600' : 'text-gray-300 hover:text-gray-400'}`}
+            onClick={(e) => { e.stopPropagation(); onStarToggle(todo._id); }}
+          >
+            <Star className={`w-5 h-5 ${todo.starred ? 'fill-yellow-600' : ''}`} />
           </button>
         </div>
       </td>
       
-      <td className={`px-2 py-1 flex-1 min-w-0 transition-all ${todo.completed ? 'text-gray-500 font-normal' : 'text-gray-900 font-semibold'}`}>
-        <div className="flex items-center gap-4 h-9">
-          <span className="w-[120px] lg:w-[180px] truncate flex-shrink-0 text-[14px]">
-            {todo.completed ? 'Đã hoàn thành' : 'Hệ thống To Do'}
+      <td className={`border-y border-[var(--border-subtle)]/30 px-2 py-2 flex-1 min-w-0 transition-all ${todo.completed ? 'text-[var(--text-soft)] italic' : 'text-[var(--text-main)] font-bold'}`}>
+        <div className="flex items-center gap-6 h-12">
+          <span className="w-[180px] lg:w-[220px] truncate flex-shrink-0 text-lg tracking-wide">
+            {todo.folder === 'sent' 
+              ? `Gửi tới: ${todo.recipient?.name || todo.recipient?.email || 'Người nhận'}` 
+              : `${todo.sender?.name || (todo.completed ? 'Đã xong' : `R-Smail To Do`)}`}
           </span>
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <span className="text-[14px] truncate">
+          <div className="flex items-center gap-4 min-w-0 flex-1">
+            <span className={`text-lg tracking-tight ${!todo.completed ? 'text-[var(--accent-blue)]' : 'text-[var(--text-soft)]'}`}>
               {todo.title}
             </span>
-            <span className="text-[14px] text-gray-500 font-normal truncate">
-              - {todo.description || 'Không có mô tả chi tiết cho công việc này'}
+            <span className="text-base text-[var(--text-soft)] truncate font-normal flex-shrink-1 italic opacity-60">
+              {todo.description ? `~ ${todo.description.length > 50 ? todo.description.substring(0, 50) + '...' : todo.description}` : ''}
             </span>
           </div>
         </div>
       </td>
 
-      <td className="w-[180px] px-4 py-1 text-right relative overflow-hidden h-9">
+      <td className="w-[160px] px-6 py-2 text-right relative overflow-hidden h-12 border-y border-[var(--border-subtle)]/30">
         <div className="flex items-center justify-end h-full">
           {/* Default Date View */}
-          <span className="group-hover:hidden text-[12px] font-medium text-gray-600">
+          <span className="group-hover:hidden text-base text-[var(--text-soft)] italic">
             {formattedDate}
           </span>
           
           {/* Hover Actions */}
-          <div className="hidden group-hover:flex items-center gap-1 bg-white/90 backdrop-blur-sm pl-2">
-            <ActionButton icon={<Archive className="w-4 h-4" />} title="Lưu trữ" />
+          <div className="hidden group-hover:flex items-center gap-2 bg-[var(--bg-content)]/95 backdrop-blur-md pl-4 rounded-l-full">
             <ActionButton 
-              icon={<Trash2 className="w-4 h-4" />} 
-              title="Xóa" 
+              icon={<Trash2 className="w-5 h-5" />} 
+              title="Vứt bỏ" 
               onClick={(e) => { e.stopPropagation(); onDelete(todo._id); }}
               danger
             />
-            <ActionButton icon={<MailOpen className="w-4 h-4" />} title="Đánh dấu là chưa đọc" />
-            <ActionButton 
-              icon={todo.completed ? <RotateCcw className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />} 
-              title={todo.completed ? "Làm mới" : "Hoàn thành"} 
-              onClick={(e) => { e.stopPropagation(); onToggle(todo._id); }}
-              active={!todo.completed}
-            />
-            <ActionButton icon={<Clock className="w-4 h-4" />} title="Tạm ẩn" />
+            {activeFolder === 'snoozed' ? (
+              <ActionButton 
+                icon={<RotateCcw className="w-5 h-5" />} 
+                title="Trả lại" 
+                onClick={(e) => { e.stopPropagation(); onUnsnooze(todo._id); }}
+              />
+            ) : (
+              <ActionButton 
+                icon={<Clock className="w-5 h-5" />} 
+                title="Gửi sau" 
+                onClick={(e) => { e.stopPropagation(); onSnooze(todo._id); }}
+              />
+            )}
           </div>
         </div>
       </td>
@@ -83,12 +96,12 @@ const MailItem = ({ todo, onToggle, onDelete }) => {
 const ActionButton = ({ icon, title, onClick, danger, active }) => (
   <button
     onClick={onClick}
-    className={`p-2 rounded-full transition-all active:scale-90 ${
+    className={`p-2.5 rounded-full transition-all active:scale-95 ${
       danger 
-        ? 'hover:bg-red-50 hover:text-red-500 text-gray-500' 
+        ? 'hover:bg-red-50 hover:text-red-500 text-[var(--text-soft)]' 
         : active 
-          ? 'hover:bg-blue-50 hover:text-blue-600 text-blue-500' 
-          : 'hover:bg-gray-100 text-gray-500 hover:text-gray-900'
+          ? 'hover:bg-black/5 text-[var(--accent-blue)]' 
+          : 'hover:bg-black/5 text-[var(--text-soft)] hover:text-[var(--text-main)]'
     }`}
     title={title}
   >

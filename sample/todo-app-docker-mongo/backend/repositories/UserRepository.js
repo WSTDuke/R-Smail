@@ -60,6 +60,13 @@ class UserRepository {
   async delete(userId) {
     return await User.findByIdAndDelete(userId);
   }
+
+  /**
+   * Lấy tất cả user
+   */
+  async findAll() {
+    return await User.find({}).select('name email');
+  }
 }
 
 module.exports = new UserRepository();

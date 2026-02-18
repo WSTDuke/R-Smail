@@ -127,16 +127,30 @@ export const getCurrentUser = async () => {
 };
 
 /**
+ * Lấy tất cả user
+ * @returns {Promise<Array>} - Array of users
+ */
+export const getUsers = async () => {
+  const response = await fetch(`${API_URL}/auth/users`, {
+    headers: getAuthHeader()
+  });
+
+  const data = await handleResponse(response);
+  return data.data;
+};
+
+/**
  * ============= TODO API =============
  */
 
 /**
- * Lấy tất cả todos
+ * Lấy tất cả todos theo thư mục
  *
+ * @param {String} folder - 'inbox', 'sent', v.v.
  * @returns {Promise<Array>} - Array of todos
  */
-export const getTodos = async () => {
-  const response = await fetch(`${API_URL}/todos`, {
+export const getTodos = async (folder = 'inbox') => {
+  const response = await fetch(`${API_URL}/todos?folder=${folder}`, {
     headers: getAuthHeader()
   });
 
@@ -145,16 +159,18 @@ export const getTodos = async () => {
 };
 
 /**
- * Tạo todo mới
+ * Tạo todo mới hoặc gửi thư
  *
- * @param {String} title - Nội dung todo
+ * @param {String} title - Tiêu đề
+ * @param {String} description - Mô tả
+ * @param {String} recipientEmail - Email người nhận (tùy chọn)
  * @returns {Promise} - Todo object
  */
-export const createTodo = async (title) => {
+export const createTodo = async (title, description, recipientEmail) => {
   const response = await fetch(`${API_URL}/todos`, {
     method: 'POST',
     headers: getAuthHeader(),
-    body: JSON.stringify({ title })
+    body: JSON.stringify({ title, description, recipientEmail })
   });
 
   const data = await handleResponse(response);
@@ -196,6 +212,54 @@ export const toggleTodo = async (id) => {
 };
 
 /**
+ * Toggle trạng thái starred
+ *
+ * @param {String} id - Todo ID
+ * @returns {Promise} - Updated todo
+ */
+export const toggleStar = async (id) => {
+  const response = await fetch(`${API_URL}/todos/${id}/toggle-star`, {
+    method: 'PATCH',
+    headers: getAuthHeader()
+  });
+
+  const data = await handleResponse(response);
+  return data.data;
+};
+
+/**
+ * Tạm ẩn todo
+ *
+ * @param {String} id - Todo ID
+ * @returns {Promise} - Updated todo
+ */
+export const snoozeTodo = async (id) => {
+  const response = await fetch(`${API_URL}/todos/${id}/snooze`, {
+    method: 'PATCH',
+    headers: getAuthHeader()
+  });
+
+  const data = await handleResponse(response);
+  return data.data;
+};
+
+/**
+ * Hoàn tác tạm ẩn todo
+ *
+ * @param {String} id - Todo ID
+ * @returns {Promise} - Updated todo
+ */
+export const unsnoozeTodo = async (id) => {
+  const response = await fetch(`${API_URL}/todos/${id}/unsnooze`, {
+    method: 'PATCH',
+    headers: getAuthHeader()
+  });
+
+  const data = await handleResponse(response);
+  return data.data;
+};
+
+/**
  * Xóa todo
  *
  * @param {String} id - Todo ID
@@ -205,6 +269,22 @@ export const deleteTodo = async (id) => {
   const response = await fetch(`${API_URL}/todos/${id}`, {
     method: 'DELETE',
     headers: getAuthHeader()
+  });
+
+  return await handleResponse(response);
+};
+
+/**
+ * Xóa nhiều todos theo IDs
+ *
+ * @param {Array} ids - List of Todo IDs
+ * @returns {Promise}
+ */
+export const deleteBulkTodos = async (ids) => {
+  const response = await fetch(`${API_URL}/todos/bulk`, {
+    method: 'DELETE',
+    headers: getAuthHeader(),
+    body: JSON.stringify({ ids })
   });
 
   return await handleResponse(response);

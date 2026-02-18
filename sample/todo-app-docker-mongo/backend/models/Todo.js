@@ -14,10 +14,35 @@ const todoSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    starred: {
+      type: Boolean,
+      default: false
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true
+    },
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    recipient: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    folder: {
+      type: String,
+      enum: ['inbox', 'sent', 'starred', 'trash', 'snoozed'],
+      default: 'inbox'
+    },
+    description: {
+      type: String,
+      trim: true
+    },
+    recipientEmail: {
+      type: String,
+      trim: true
     }
   },
   {
@@ -27,5 +52,6 @@ const todoSchema = new mongoose.Schema(
 
 // Index để query nhanh
 todoSchema.index({ user: 1 });
+todoSchema.index({ user: 1, folder: 1 });
 
 module.exports = mongoose.model('Todo', todoSchema);

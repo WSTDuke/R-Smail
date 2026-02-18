@@ -22,6 +22,10 @@ router.get('/:id', TodoController.getTodoById);
 router.post('/', TodoController.createTodo);
 router.put('/:id', TodoController.updateTodo);
 router.patch('/:id/toggle', TodoController.toggleTodo);
+router.patch('/:id/toggle-star', TodoController.toggleStar);
+router.patch('/:id/snooze', TodoController.snoozeTodo);
+router.patch('/:id/unsnooze', TodoController.unsnoozeTodo);
+router.delete('/bulk', TodoController.deleteBulkTodos);
 router.delete('/:id', TodoController.deleteTodo);
 router.delete('/', TodoController.deleteCompletedTodos);
 

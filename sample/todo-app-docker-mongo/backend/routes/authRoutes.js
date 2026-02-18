@@ -10,5 +10,6 @@ router.post('/login', AuthController.login);
 
 // Private routes
 router.get('/me', protect, AuthController.getCurrentUser);
+router.get('/users', protect, AuthController.getAllUsers);
 
 module.exports = router;
