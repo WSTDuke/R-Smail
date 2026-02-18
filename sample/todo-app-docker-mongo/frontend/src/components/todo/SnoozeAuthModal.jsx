@@ -62,7 +62,7 @@ const SnoozeAuthModal = ({ isOpen, onClose, onAuthenticated, mode = 'verify' }) 
       if (pinString === savedPin) {
         onAuthenticated();
       } else {
-        setError('Mã PIN không chính xác');
+        setError('Mật mã không chính xác');
         setPin(['', '', '', '', '', '']);
         inputRefs[0].current.focus();
       }
@@ -87,12 +87,12 @@ const SnoozeAuthModal = ({ isOpen, onClose, onAuthenticated, mode = 'verify' }) 
           </div>
 
           <h3 className="text-3xl font-bold text-[var(--text-main)] mb-2 font-logo">
-            {isSetup ? 'Thiết lập bảo trì' : 'Xác thực hòm thư'}
+            {isSetup ? 'Thiết lập bảo mật' : 'Xác thực hòm thư'}
           </h3>
           <p className="text-lg text-[var(--text-soft)] mb-8 italic">
             {isSetup 
-              ? 'Tạo mã PIN 6 số để bảo vệ những bức thư đang tạm ẩn.' 
-              : 'Vui lòng nhập mã PIN để mở hòm thư tạm ẩn.'}
+              ? 'Tạo mật mã 6 số để bảo vệ những bức thư đang tạm ẩn.' 
+              : 'Vui lòng nhập mật mã để mở hòm thư tạm ẩn.'}
           </p>
 
           <form onSubmit={handleSubmit} className="w-full">
@@ -121,7 +121,7 @@ const SnoozeAuthModal = ({ isOpen, onClose, onAuthenticated, mode = 'verify' }) 
               className="w-full py-4 rounded-full bg-[var(--accent-blue)] text-white font-bold text-xl font-logo hover:bg-[var(--accent-blue)]/90 shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               <CheckCircle2 className="w-6 h-6" />
-              {isSetup ? 'Xác nhận mã PIN' : 'Mở hòm thư'}
+              {isSetup ? 'Xác nhận mật mã' : 'Mở hòm thư'}
             </button>
           </form>
         </div>
